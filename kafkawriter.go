@@ -9,12 +9,19 @@ import (
 
 var (
 	wg sync.WaitGroup
-	successes, errors int
+	successes, errors, resendc int
 )
+
+func stopProducer(p sarama.AsyncProducer) {
+	p.AsyncClose()
+	swg.Done()
+}
 
 func newProducer() sarama.AsyncProducer {
 	config := sarama.NewConfig()
 	config.Producer.Return.Successes = true
+	config.Producer.Flush.Messages = 1
+	config.Producer.Flush.MaxMessages = 5
 
         if saslEnabled {
                 config.Net.SASL.Enable = saslEnabled
@@ -39,9 +46,9 @@ func newProducer() sarama.AsyncProducer {
         wg.Add(1)
         go func() {
                 defer wg.Done()
-                for err := range producer.Errors() {
-                        log.Println(err)
+                for perr := range producer.Errors() {
                         errors++
+			resend(perr.Msg)
                 }
         }()
 
@@ -50,4 +57,9 @@ func newProducer() sarama.AsyncProducer {
 
 func writeToKafka(report string) {
 	producer.Input() <- &sarama.ProducerMessage{Topic: cfg.Topic, Value: sarama.StringEncoder(report)}
+}
+
+func resend(msg *sarama.ProducerMessage) {
+	producer.Input() <- msg
+	resendc++
 }
