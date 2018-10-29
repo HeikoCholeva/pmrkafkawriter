@@ -14,19 +14,19 @@ type Config struct {
         Topic string    `json:"topic"`
 
         SASL struct {
-                Enabled string  `json:"enabled"`
+                Enabled bool  `json:"enabled"`
                 Username string `json:"username"`
                 Password string `json:"password"`
-        } `json:"sasl"`
+        } `json:"sasl,omitempty"`
 
         WebServer struct {
                 Path string     `json:"path"`
                 Port string     `json:"port"`
                 TLS struct {
-                        Enabled string  `json:"enabled"`
+                        Enabled bool  `json:"enabled"`
                         Cert string     `json:"certfile"`
                         Key string      `json:"keyfile"`
-                } `json:"tls"`
+                } `json:"tls,omitempty"`
         } `json:"webserver"`
 }
 
