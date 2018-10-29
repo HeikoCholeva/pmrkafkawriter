@@ -35,7 +35,7 @@ func main() {
 
 	producer = newProducer()
 
-	if cfg.WebServer.TLS.Enabled {
+	if cfg.WebServer.TLS.Cert != "" && cfg.WebServer.TLS.Key != "" {
 		startServer(port, cfg.WebServer.Path, true, cfg.WebServer.TLS.Cert, cfg.WebServer.TLS.Key)
 	} else {
 		startServer(port, cfg.WebServer.Path, false, "", "")
