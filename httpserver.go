@@ -20,7 +20,7 @@ func stopServer() {
 
 func startServer(port string, path string, tls bool, cert string, key string) {
 	srv.Addr = port
-	log.Println("Starting server on port", srv.Addr)
+	log.Printf("Starting server on port %v. TLS enabled: %v\n", srv.Addr, tls)
 
 	http.HandleFunc(path, handler)
 	if tls {
