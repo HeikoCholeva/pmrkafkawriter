@@ -5,15 +5,12 @@ import (
 	"os"
 	"log"
 	"sync"
-	"strconv"
 	"os/signal"
 	"github.com/Shopify/sarama"
 )
 
 var (
 	cfg Config
-	saslEnabled bool
-	tlsEnabled bool
 	producer sarama.AsyncProducer
 	swg sync.WaitGroup
 )
@@ -34,13 +31,11 @@ func main() {
 		panic(err)
 	}
 
-	saslEnabled, _ = strconv.ParseBool(cfg.SASL.Enabled)
-	tlsEnabled, _ = strconv.ParseBool(cfg.WebServer.TLS.Enabled)
 	port := ":" + string(cfg.WebServer.Port)
 
 	producer = newProducer()
 
-	if tlsEnabled {
+	if cfg.WebServer.TLS.Enabled {
 		startServer(port, cfg.WebServer.Path, true, cfg.WebServer.TLS.Cert, cfg.WebServer.TLS.Key)
 	} else {
 		startServer(port, cfg.WebServer.Path, false, "", "")

@@ -14,7 +14,7 @@ type Config struct {
         Topic string    `json:"topic"`
 
         SASL struct {
-                Enabled string  `json:"enabled"`
+                Enabled bool  `json:"enabled,string"`
                 Username string `json:"username"`
                 Password string `json:"password"`
         } `json:"sasl,omitempty"`
@@ -23,7 +23,7 @@ type Config struct {
                 Path string     `json:"path"`
                 Port string     `json:"port"`
                 TLS struct {
-                        Enabled string  `json:"enabled"`
+                        Enabled bool  `json:"enabled,string"`
                         Cert string     `json:"certfile"`
                         Key string      `json:"keyfile"`
                 } `json:"tls,omitempty"`
@@ -58,4 +58,3 @@ func (c *Config) FromFile(fname string) error {
         }
         return json.Unmarshal(uclJSON, &c)
 }
-

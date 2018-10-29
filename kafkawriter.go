@@ -23,8 +23,8 @@ func newProducer() sarama.AsyncProducer {
 	config.Producer.Flush.Messages = 1
 	config.Producer.Flush.MaxMessages = 5
 
-        if saslEnabled {
-                config.Net.SASL.Enable = saslEnabled
+        if cfg.SASL.Enabled {
+                config.Net.SASL.Enable = cfg.SASL.Enabled
                 config.Net.SASL.User = cfg.SASL.Username
                 config.Net.SASL.Password = cfg.SASL.Password
         }
