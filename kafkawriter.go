@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"sync"
+	"time"
 	"strings"
 	"github.com/Shopify/sarama"
 )
@@ -60,6 +61,7 @@ func writeToKafka(report string) {
 }
 
 func resend(msg *sarama.ProducerMessage) {
+	time.Sleep(3 * time.Second)
 	producer.Input() <- msg
 	resendc++
 }
