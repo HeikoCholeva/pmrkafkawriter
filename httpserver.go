@@ -101,21 +101,15 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
         if strings.ToUpper(r.Method) == "POST" {
                 var report pmrlib.Report
-                err = report.FromJSON(body)
-                if err != nil {
+		if err := json.Unmarshal(body, &report); err != nil {
 			scode = 400
 			w.WriteHeader(scode)
 			w.Header().Set("Connection", "close")
                 } else {
-                        jsonstr, err := pmrlib.ToJSON(report)
-                        if err != nil {
-                                panic(err)
-                        } else {
-				writeToKafka(jsonstr)
-				scode = 202
-				w.WriteHeader(scode)
-                                w.Header().Set("Connection", "close")
-                        }
+			writeToKafka(string(body))
+			scode = 202
+			w.WriteHeader(scode)
+			w.Header().Set("Connection", "close")
                 }
         } else {
 		scode = 405
