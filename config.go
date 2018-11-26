@@ -19,9 +19,11 @@ type Config struct {
         } `json:"sasl,omitempty"`
 
         WebServer struct {
-                Path string     `json:"path"`
-                Port string     `json:"port"`
-                TLS struct {
+                Path string		`json:"path"`
+                Port string		`json:"port"`
+		BasicAuthFile string	`json:"basicauthfile"`
+
+		TLS struct {
                         Cert string     `json:"certfile"`
                         Key string      `json:"keyfile"`
                 } `json:"tls,omitempty"`

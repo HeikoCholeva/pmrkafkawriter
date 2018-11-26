@@ -35,10 +35,15 @@ func main() {
 
 	producer = newProducer()
 
+	ba := false
+	if cfg.WebServer.BasicAuthFile != "" {
+		ba = true
+	}
+
 	if cfg.WebServer.TLS.Cert != "" && cfg.WebServer.TLS.Key != "" {
-		startServer(port, cfg.WebServer.Path, true, cfg.WebServer.TLS.Cert, cfg.WebServer.TLS.Key)
+		startServer(port, cfg.WebServer.Path, true, cfg.WebServer.TLS.Cert, cfg.WebServer.TLS.Key, ba)
 	} else {
-		startServer(port, cfg.WebServer.Path, false, "", "")
+		startServer(port, cfg.WebServer.Path, false, "", "", ba)
 	}
 }
 
