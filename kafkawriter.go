@@ -49,6 +49,7 @@ func newProducer() sarama.AsyncProducer {
                 defer wg.Done()
                 for perr := range producer.Errors() {
                         errors++
+			log.Printf("Error @producer.Errors: %v", perr)
 			resend(perr.Msg)
                 }
         }()
