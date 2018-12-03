@@ -17,6 +17,7 @@ var (
 	producer    sarama.AsyncProducer
 	swg         sync.WaitGroup
 	versionFlag = flag.Bool("version", false, "print the version of the program")
+	configFlag  = flag.String("config", "", "path to the config file")
 )
 var githash, shorthash, builddate, buildtime string
 
@@ -30,22 +31,30 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Timestamp: %s\n", buildtime)
 		os.Exit(0)
 	}
+	if *configFlag == "" {
+		log.Fatal("missing mandatory config path parameter")
+		os.Exit(1)
+	}
+	err := cfg.FromFile(*configFlag)
+	if err != nil {
+		panic(err)
+	}
 	go signalHandler()
-
-	f, err := os.OpenFile("server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	logfile := fmt.Sprintf("%s/%s", cfg.Log.Path, cfg.Log.File)
+	f, err := os.OpenFile(logfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("Error opening file: %v", err)
 	}
 	defer f.Close()
-	mw := io.MultiWriter(os.Stdout, f)
+	var mw io.Writer
+	if cfg.Log.STDOUT {
+		mw = io.MultiWriter(os.Stdout, f)
+	} else {
+		mw = io.MultiWriter(f)
+	}
 	log.SetOutput(mw)
 
-	err = cfg.FromFile("server.properties")
-	if err != nil {
-		panic(err)
-	}
-
-	port := ":" + string(cfg.WebServer.Port)
+	listen := fmt.Sprintf("%s:%d", cfg.WebServer.Listen, cfg.WebServer.Port)
 
 	producer = newProducer()
 
@@ -55,9 +64,9 @@ func main() {
 	}
 
 	if cfg.WebServer.TLS.Cert != "" && cfg.WebServer.TLS.Key != "" {
-		startServer(port, cfg.WebServer.Path, true, cfg.WebServer.TLS.Cert, cfg.WebServer.TLS.Key, ba)
+		startServer(listen, cfg.WebServer.Path, true, cfg.WebServer.TLS.Cert, cfg.WebServer.TLS.Key, ba)
 	} else {
-		startServer(port, cfg.WebServer.Path, false, "", "", ba)
+		startServer(listen, cfg.WebServer.Path, false, "", "", ba)
 	}
 }
 
