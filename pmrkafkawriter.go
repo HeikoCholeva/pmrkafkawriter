@@ -17,6 +17,7 @@ var (
 	producer    sarama.AsyncProducer
 	swg         sync.WaitGroup
 	versionFlag = flag.Bool("version", false, "print the version of the program")
+	configFlag  = flag.String("config", "", "path to the config file")
 )
 var githash, shorthash, builddate, buildtime string
 
@@ -30,6 +31,10 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Timestamp: %s\n", buildtime)
 		os.Exit(0)
 	}
+	if *configFlag == "" {
+		log.Fatal("missing mandatory config path parameter")
+		os.Exit(1)
+	}
 	go signalHandler()
 
 	f, err := os.OpenFile("server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
@@ -40,7 +45,7 @@ func main() {
 	mw := io.MultiWriter(os.Stdout, f)
 	log.SetOutput(mw)
 
-	err = cfg.FromFile("server.properties")
+	err = cfg.FromFile(*configFlag)
 	if err != nil {
 		panic(err)
 	}
