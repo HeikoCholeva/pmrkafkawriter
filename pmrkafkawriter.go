@@ -40,7 +40,7 @@ func main() {
 		panic(err)
 	}
 	go signalHandler()
-	logfile := fmt.Sprintf("%s/%s", cfg.Log.Path, cfg.Log.Filename)
+	logfile := fmt.Sprintf("%s/%s", cfg.Log.Path, cfg.Log.File)
 	f, err := os.OpenFile(logfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("Error opening file: %v", err)
