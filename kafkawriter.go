@@ -33,7 +33,7 @@ func newProducer() sarama.AsyncProducer {
 
 	broker := strings.Split(strings.Replace(cfg.Broker, " ", "", -1), ",")
 	log.Printf("Broker: %v\n", broker)
-
+	config.ClientID = "pmrkafkawriter"
 	producer, err := sarama.NewAsyncProducer(broker, config)
 	if err != nil {
 		log.Fatalln("Failed to start Sarama producer:", err)
