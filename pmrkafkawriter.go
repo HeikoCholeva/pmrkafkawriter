@@ -45,7 +45,7 @@ func main() {
 		panic(err)
 	}
 
-	port := ":" + string(cfg.WebServer.Port)
+	listen := fmt.Sprintf("%s:%d", cfg.WebServer.Listen, cfg.WebServer.Port)
 
 	producer = newProducer()
 
@@ -55,9 +55,9 @@ func main() {
 	}
 
 	if cfg.WebServer.TLS.Cert != "" && cfg.WebServer.TLS.Key != "" {
-		startServer(port, cfg.WebServer.Path, true, cfg.WebServer.TLS.Cert, cfg.WebServer.TLS.Key, ba)
+		startServer(listen, cfg.WebServer.Path, true, cfg.WebServer.TLS.Cert, cfg.WebServer.TLS.Key, ba)
 	} else {
-		startServer(port, cfg.WebServer.Path, false, "", "", ba)
+		startServer(listen, cfg.WebServer.Path, false, "", "", ba)
 	}
 }
 

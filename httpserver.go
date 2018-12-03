@@ -1,15 +1,17 @@
 package main
 
 import (
-	"os"
-	"log"
 	"context"
-	"strings"
-	"net/http"
-	"io/ioutil"
 	"encoding/json"
-	auth "github.com/abbot/go-http-auth"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"strings"
+
 	pmrlib "github.com/HeikoCholeva/pmrlib-go"
+	auth "github.com/abbot/go-http-auth"
 )
 
 var srv http.Server
@@ -22,8 +24,8 @@ func stopServer() {
 	}
 }
 
-func startServer(port string, path string, tls bool, cert string, key string, ba bool) {
-	srv.Addr = port
+func startServer(listen string, path string, tls bool, cert string, key string, ba bool) {
+	srv.Addr = listen
 	log.Printf("Starting server on port %v. TLS enabled: %v, Basic Auth enabled: %v\n", srv.Addr, tls, ba)
 
 	if ba {
@@ -44,7 +46,7 @@ func startServer(port string, path string, tls bool, cert string, key string, ba
 func initAuthFile() {
 	log.Printf("Using file \"%v\" for http basic auth", cfg.WebServer.BasicAuthFile)
 
-	f, err := os.OpenFile(cfg.WebServer.BasicAuthFile, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	f, err := os.OpenFile(cfg.WebServer.BasicAuthFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("Error opening file \"%v\": %v", cfg.WebServer.BasicAuthFile, err)
 	}
@@ -86,37 +88,37 @@ func handleAuth(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
 		w.WriteHeader(scode)
 		w.Header().Set("Connection", "close")
 	}
-	log.Println(r.RemoteAddr,"\t", r.Method, "-", scode, "\t", r.RequestURI, "\t", len(body), "\tUser: ", r.Username)
+	log.Println(r.RemoteAddr, "\t", r.Method, "-", scode, "\t", r.RequestURI, "\t", len(body), "\tUser: ", r.Username)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	r.Close = true
-        body, err := ioutil.ReadAll(r.Body)
+	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
-        if err != nil {
-                log.Fatal(err)
-        }
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var scode int
 
-        if strings.ToUpper(r.Method) == "POST" {
-                var report pmrlib.Report
+	if strings.ToUpper(r.Method) == "POST" {
+		var report pmrlib.Report
 		if err := json.Unmarshal(body, &report); err != nil {
 			scode = 400
 			w.WriteHeader(scode)
 			w.Header().Set("Connection", "close")
-                } else {
+		} else {
 			writeToKafka(string(body))
 			scode = 202
 			w.WriteHeader(scode)
 			w.Header().Set("Connection", "close")
-                }
-        } else {
+		}
+	} else {
 		scode = 405
 		w.WriteHeader(scode)
 		w.Header().Set("Connection", "close")
 	}
-	log.Println(r.RemoteAddr,"\t", r.Method, "-", scode, "\t", r.RequestURI, "\t", len(body))
+	log.Println(r.RemoteAddr, "\t", r.Method, "-", scode, "\t", r.RequestURI, "\t", len(body))
 }
 
 func getSecret(user, realm string) string {

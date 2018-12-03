@@ -22,7 +22,8 @@ type Config struct {
 
 	WebServer struct {
 		Path          string `json:"path"`
-		Port          string `json:"port"`
+		Listen        string `json:"listen`
+		Port          uint16 `json:"port"`
 		BasicAuthFile string `json:"basicauthfile"`
 
 		TLS struct {
