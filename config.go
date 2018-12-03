@@ -14,7 +14,11 @@ import (
 type Config struct {
 	Broker string `json:"broker.address"`
 	Topic  string `json:"topic"`
-
+	Log    struct {
+		Path   string `json:"path"`
+		File   string `json:"file"`
+		STDOUT bool   `json:"stdout"`
+	} `json:"log"`
 	SASL struct {
 		Username string `json:"username"`
 		Password string `json:"password"`

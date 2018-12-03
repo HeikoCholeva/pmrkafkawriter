@@ -35,20 +35,24 @@ func main() {
 		log.Fatal("missing mandatory config path parameter")
 		os.Exit(1)
 	}
+	err := cfg.FromFile(*configFlag)
+	if err != nil {
+		panic(err)
+	}
 	go signalHandler()
-
-	f, err := os.OpenFile("server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	logfile := fmt.Sprintf("%s/%s", cfg.Log.Path, cfg.Log.Filename)
+	f, err := os.OpenFile(logfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("Error opening file: %v", err)
 	}
 	defer f.Close()
-	mw := io.MultiWriter(os.Stdout, f)
-	log.SetOutput(mw)
-
-	err = cfg.FromFile(*configFlag)
-	if err != nil {
-		panic(err)
+	var mw io.Writer
+	if cfg.Log.STDOUT {
+		mw = io.MultiWriter(os.Stdout, f)
+	} else {
+		mw = io.MultiWriter(f)
 	}
+	log.SetOutput(mw)
 
 	listen := fmt.Sprintf("%s:%d", cfg.WebServer.Listen, cfg.WebServer.Port)
 
