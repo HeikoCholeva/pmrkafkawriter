@@ -17,7 +17,7 @@ type Config struct {
 	Log    struct {
 		Path   string `json:"path"`
 		File   string `json:"file"`
-		STDOUT bool   `json:"stdout"`
+		STDOUT bool   `json:"stdout,string"`
 	} `json:"log"`
 	SASL struct {
 		Username string `json:"username"`
@@ -27,7 +27,7 @@ type Config struct {
 	WebServer struct {
 		Path          string `json:"path"`
 		Listen        string `json:"listen"`
-		Port          uint16 `json:"port"`
+		Port          uint16 `json:"port,string"`
 		BasicAuthFile string `json:"basicauthfile"`
 
 		TLS struct {
