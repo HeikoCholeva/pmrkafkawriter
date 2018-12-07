@@ -45,7 +45,7 @@ func startServer(listen string, path string, tls bool, cert string, key string, 
 func initAuthFile() {
 	log.Printf("Using file \"%v\" for http basic auth", cfg.WebServer.BasicAuthFile)
 
-	f, err := os.OpenFile(cfg.WebServer.BasicAuthFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile(cfg.WebServer.BasicAuthFile, os.O_RDONLY, 0666)
 	if err != nil {
 		log.Fatalf("Error opening file \"%v\": %v", cfg.WebServer.BasicAuthFile, err)
 	}
@@ -107,8 +107,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(scode)
 			w.Header().Set("Connection", "close")
 		} else {
-			writeToKafka(string(body))
-			scode = 202
+			b, err := json.Marshal(report)
+			if err != nil {
+				scode = 400
+			} else {
+				scode = 202
+				writeToKafka(string(b))
+			}
 			w.WriteHeader(scode)
 			w.Header().Set("Connection", "close")
 		}
